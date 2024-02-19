@@ -18,8 +18,6 @@ def get_wordnet_pos(word):
 
 
 # Function to load models
-
-# Function to load models
 def load_models():
     # Construct the path to the model files
     model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
