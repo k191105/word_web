@@ -18,13 +18,27 @@ def get_wordnet_pos(word):
 
 
 # Function to load models
+
+# Function to load models
 def load_models():
+    # Construct the path to the model files
     model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
-    model_google_news = KeyedVectors.load(model_google_news_path, mmap='r')
     model_oxford_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec_model_oxford.model')
-    model_oxford = KeyedVectors.load(model_oxford_path, mmap='r')  # Ensure this loads KeyedVectors
-    models = {'google_news': model_google_news, 'oxford': model_oxford.wv}  # Corrected to use .wv for Word2Vec models
-    return models
+    
+    # Log the paths to check if they are correct
+    print("Loading model from:", model_google_news_path)
+    print("Loading model from:", model_oxford_path)
+
+    # Attempt to load the models
+    try:
+        model_google_news = KeyedVectors.load(model_google_news_path, mmap='r')
+        model_oxford = KeyedVectors.load(model_oxford_path, mmap='r')  # Ensure this loads KeyedVectors
+        models = {'google_news': model_google_news, 'oxford': model_oxford.wv}  # Corrected to use .wv for Word2Vec models
+        print("Models loaded successfully.")
+        return models
+    except Exception as e:
+        print("Failed to load models:", e)
+        raise
 
 def find_weighted_similar_words(target_word, models, topn=12):
     pos = get_wordnet_pos(target_word)
