@@ -1,0 +1,7 @@
+# Ignore specific files
+trim.py
+preprocessing.py
+training.py
+
+venv/
+data/
