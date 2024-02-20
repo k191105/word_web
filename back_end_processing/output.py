@@ -17,9 +17,6 @@ def load_models():
     model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
     model_oxford_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec_model_oxford.model')
     
-    # Log the paths to check if they are correct
-    print("Loading model from:", model_google_news_path)
-    print("Loading model from:", model_oxford_path)
 
     # Attempt to load the models
     try:
@@ -39,16 +36,18 @@ def find_weighted_similar_words(target_word, models, topn=12):
     # Generate similar words from both models
     oxford_results = models['oxford'].most_similar(target_word, topn=topn) if target_word in models['oxford'].key_to_index else []
     google_news_results = models['google_news'].most_similar(target_word, topn=topn) if target_word in models['google_news'].key_to_index else []
-    print(f"oxford_results: {oxford_results}")
-    print(f"google reults: {google_news_results}")
+    # print(f"oxford_results: {oxford_results}")
+    # print(f"google reults: {google_news_results}")
     # Combine results based on POS
-    if pos in ["ADJ", "VERB", "NOUN"]:
+    if pos in ["ADJ", "VERB", "ADV"]:
         long_list = oxford_results + google_news_results
+        print("Using Oxford")
     else:  # For nouns
         long_list = google_news_results + oxford_results
+        print("Using Google")
 
-    print("Initial long_list created with combined results.")
-    print(long_list)
+    # print("Initial long_list created with combined results.")
+    # print(long_list)
     # Deduplicate and adjust scores
     seen_words = set()
     adjusted_long_list = []
@@ -63,18 +62,12 @@ def find_weighted_similar_words(target_word, models, topn=12):
                     adjusted_long_list[i] = (adj_word, adj_similarity * 1.16)
                     break
 
-    print("Adjusted long_list for duplicates.")
-    print(long_list)
     # Create medium_list by removing misspellings, plurals, and low scores
     medium_list = [word for word in adjusted_long_list if word[1] >= 0.6]
 
-    print("Filtered to create medium_list.")
-    print(medium_list)
     # Cut to short_list and sort
     short_list = sorted(medium_list[:10], key=lambda x: x[1], reverse=True)
 
-    print("Short_list created and sorted.")
-    print(short_list)
 
     # Adjust scores to spread between 0.75 and 1
     min_score, max_score = short_list[-1][1], short_list[0][1]
@@ -86,7 +79,6 @@ def find_weighted_similar_words(target_word, models, topn=12):
 
     sorted_adjusted_results = [(word, adjust_score(similarity)) for word, similarity in short_list]
 
-    print("Final sorted and adjusted results:")
     for word, similarity in sorted_adjusted_results:
         print(f'{word}: {similarity}')
 
@@ -95,4 +87,4 @@ def find_weighted_similar_words(target_word, models, topn=12):
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('therefore', models)
+    similar_words = find_weighted_similar_words('cheese', models)
