@@ -1,21 +1,14 @@
 from gensim.models import KeyedVectors
 import os
-import nltk
-from nltk.corpus import wordnet
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
-nltk.download('wordnet')
 # Function to determine the primary POS tag in WordNet format
 def get_wordnet_pos(word):
     doc = nlp(word)
     spacy_pos_tag = doc[0].pos_  # Get the spaCy POS tag for the first token
-    # Mapping from spaCy POS tags to WordNet POS tags
-    tag_dict = {"ADJ": wordnet.ADJ, "VERB": wordnet.VERB, "NOUN": wordnet.NOUN, "ADV": wordnet.ADV}
-    wordnet_pos = tag_dict.get(spacy_pos_tag, wordnet.NOUN)  # Default to NOUN
-    print(f"spaCy POS tag for '{word}': {spacy_pos_tag} (WordNet POS: {wordnet_pos})")
-
-    return wordnet_pos
+    print(f"spaCy POS tag for '{word}': {spacy_pos_tag}")
+    return spacy_pos_tag
 
 
 # Function to load models
@@ -49,7 +42,7 @@ def find_weighted_similar_words(target_word, models, topn=12):
     print(f"oxford_results: {oxford_results}")
     print(f"google reults: {google_news_results}")
     # Combine results based on POS
-    if pos in [wordnet.ADJ, wordnet.VERB, wordnet.ADV]:
+    if pos in ["ADJ", "VERB", "NOUN"]:
         long_list = oxford_results + google_news_results
     else:  # For nouns
         long_list = google_news_results + oxford_results
