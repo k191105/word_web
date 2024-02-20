@@ -5,6 +5,7 @@ from nltk.corpus import wordnet
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
+nltk.download('wordnet')
 # Function to determine the primary POS tag in WordNet format
 def get_wordnet_pos(word):
     doc = nlp(word)
