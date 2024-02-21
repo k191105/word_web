@@ -3,10 +3,9 @@ import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
-# Function to determine the primary POS tag in WordNet format
 def get_wordnet_pos(word):
     doc = nlp(word)
-    spacy_pos_tag = doc[0].pos_  # Get the spaCy POS tag for the first token
+    spacy_pos_tag = doc[0].pos_  
     print(f"spaCy POS tag for '{word}': {spacy_pos_tag}")
     return spacy_pos_tag
 
@@ -62,14 +61,13 @@ def find_weighted_similar_words(target_word, models, topn=12):
                     adjusted_long_list[i] = (adj_word, adj_similarity * 1.16)
                     break
 
-    # Create medium_list by removing misspellings, plurals, and low scores
-    medium_list = [word for word in adjusted_long_list if word[1] >= 0.6]
-
+    print(adjusted_long_list)
+    medium_list = [word for word in adjusted_long_list if word[1] >= 0.54]
+    
     # Cut to short_list and sort
     short_list = sorted(medium_list[:10], key=lambda x: x[1], reverse=True)
 
 
-    # Adjust scores to spread between 0.75 and 1
     min_score, max_score = short_list[-1][1], short_list[0][1]
     range_min, range_max = 0.8, 1.0
 
@@ -81,10 +79,9 @@ def find_weighted_similar_words(target_word, models, topn=12):
 
     for word, similarity in sorted_adjusted_results:
         print(f'{word}: {similarity}')
-
     return sorted_adjusted_results
 
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('cheese', models)
+    similar_words = find_weighted_similar_words('showcases', models)

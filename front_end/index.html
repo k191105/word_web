@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Word Wide Web</title>
-    <!-- Include Tailwind CSS -->
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Raleway" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -12,11 +11,9 @@
 </head>
 <body class="bg-gray-100">
 
-    <!-- Navbar -->
     <nav class="bg-white border-gray-200 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto p-4 flex items-center justify-between">
             <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <!-- Consider replacing with your app's logo -->
                 <div class="bg-indigo-600 rounded-full h-8 w-8 flex items-center justify-center">
                     <span class="text-white text-lg">W</span>
                 </div>
@@ -36,14 +33,13 @@
                     </li>
 
                     <li>
-                        <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">Coming Soon &nbsp <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">Minigames &nbsp <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
               </svg></button>
-                        <!-- Dropdown menu -->
                         <div id="dropdownNavbar" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-400" aria-labelledby="dropdownLargeButton">
                               <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Minigame: Pathways</a>
+                                <a href="pathways.html" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Minigame: Pathways</a>
                               </li>
                         </div>
                     </li>
@@ -53,38 +49,33 @@
     </nav>
 
     <div class="container mx-auto p-4">
+
+
         <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-grow">
-                <!-- Make input full width -->
                 <input type="text" id="word-input" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring focus:ring-indigo-400" placeholder="Enter a word">
             </div>
             <div class="flex-shrink-0 space-x-2 flex items-center">
-                <!-- Button takes the size of its content -->
                 <button id="submit-button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400">Find Similar Words</button>
-                <!-- Loader indicator is aligned with button -->
                 <div id="loadingIndicator" style="width: 20px; height: 20px; border-radius: 50%; background-color: red;"></div>
             </div>
         </div>
 
         <div class="mt-4" id="graph-container">
             <div id="svg-container">
-                <!-- The SVG graph will be appended here -->
             </div>
         </div>
 
-        <!-- About Section -->
         <div id="about-section" class="mt-8">
             <h2 class="text-2xl font-semibold">About</h2>
             <div class="flex flex-col md:flex-row justify-between gap-4 mt-4">
                 <!-- Left Column -->
                 <div class="mr-4 md:w-1/2">
-                    <!-- Me + The Purpose -->
                     <div class="mb-8">
                         <h3 class="text-xl font-semibold mb-2">Me + The Purpose</h3>
-                        <p class="tracking-wider mb-4">Hi! I’m Krishiv: I’m a full-time student, part-time coder and a dedicated word-lover. In my senior year of high school, I initially developed this app to help with essay-writing (for which college applications ensured I had plenty of opportunity!), but it’s grown from there into a celebration of the dynamic, intricate living structure of language and thought itself. For insofar as language <a href="https://en.wikipedia.org/wiki/Linguistic_relativity" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">corresponds</a> to ideas, words map the nuances and contours of human creativity. What could be more exciting?</p>
-                        <p class="tracking-wider">To me, part of what makes writing so thrilling - and language as a whole so fascinating - is the distinct radiance, connotation, tonality that colours every word. <strong>I believe the search for the perfect word is one best conducted through peripheries</strong>: the writer’s first mental effort takes them only so far - it’s then their joy and mission to glance carefully along the network of language before them, raise up different words to the light, exchange them and interchange them - play with, probe, semantic characters until le mot juste clicks.</p>
+                        <p class="tracking-wider mb-4">Hi! I’m Krishiv: I’m a full-time student, part-time coder and a dedicated word-lover. In my senior year of high school, I initially developed this app to help with essay-writing (for which college applications ensured I had plenty of opportunity!) but it’s grown from there into a celebration of the dynamic, intricate living structure of language and thought itself. For insofar as language <a href="https://en.wikipedia.org/wiki/Linguistic_relativity" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">corresponds</a> to ideas, words map the nuances and contours of human creativity. What could be more exciting?</p>
+                        <p class="tracking-wider">To me, part of what makes writing so thrilling - and language as a whole so fascinating - is the distinct radiance, connotation, tonality that colours every word. <strong>I believe the search for the perfect word is one best conducted through peripheries</strong>: the writer’s first mental effort takes them only so far - it’s then their joy and mission to glance carefully along the network of language before them, raise up different words to the light, exchange them and interchange them. Play with, probe, connect semantic characters until <i>le mot juste</i> clicks.</p>
                     </div>
-                    <!-- The App -->
                 </div>
                 <!-- Right Column -->
                 <div class="ml-4 md:w-1/2">
@@ -98,7 +89,6 @@
                         </ul>
                         <p lass="tracking-wider" >Link distances and node colours correspond to the degree of similarity calculated by the algorithm (and then mathematically normalised.)</p>
                     </div>
-                    <!-- The Algorithm -->
                     <div>
                         <h3 class="text-xl font-semibold mb-2">The Algorithm</h3>
                         <p class="tracking-wider mb-4">The algorithm uses <a href="https://www.turing.com/kb/guide-on-word-embeddings-in-nlp" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">word embeddings</a>, a natural language processing technique, that converts terms to multidimensional mathematical vectors (200 dimensional in this case). These vector representations capture latent semantic relationships between words, learnt via machine-learning algorithms that associate certain words with others, from vast amounts of text data. You’ll probably get some weird results now and then - this is just the nature of the algorithm. Laugh at them: weird results can lead to some pretty amusing rabbit holes!</p>
@@ -108,10 +98,12 @@
                 </div>
 
             </div>
+
+
         </div>
         <div class="mb-12">
                 <h3 class="text-xl font-semibold mb-2">Feedback</h3>
-        <p class="tracking-wider mb-4" >If you have thoughts, questions or feedback, I'd love to hear it! Please get in touch at <a href="mailto:singhalkrishiv@gmail.com" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">singhalkrishiv@gmail.com</a>, as I try to further improve and develop this resource.</p>
+        <p class="tracking-wider mb-4" >If you have thoughts, questions or feedback, I'd love to hear it! Please get in touch at <a href="mailto:singhalkrishiv@gmail.com" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">singhalkrishiv@gmail.com</a> as I try to further improve and develop this resource.</p>
         </div>
 
         </div>
@@ -120,15 +112,13 @@
     </div>
 
     <script>
-                // Add an event listener for all anchor tags with the `href` attribute starting with '#'
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault(); // Prevent the default anchor behavior
+                e.preventDefault(); 
 
-                const targetId = this.getAttribute('href'); // Get the target id (e.g., "#about-section")
-                const targetElement = document.querySelector(targetId); // Select the target element
+                const targetId = this.getAttribute('href'); 
+                const targetElement = document.querySelector(targetId); 
 
-                // Scroll to the target element smoothly
                 targetElement.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
@@ -136,15 +126,12 @@
             });
         });
     </script>
-
     <script>
-        // Get dropdown button element
         const dropdownBtn = document.getElementById('dropdownNavbarLink');
-        // Get dropdown element
+
         const dropdown = document.getElementById('dropdownNavbar');
         dropdown.classList.add('absolute');
 
-        // Add event listener to toggle dropdown on click
         dropdownBtn.addEventListener('click', () => {
           dropdown.classList.toggle('hidden');
         });

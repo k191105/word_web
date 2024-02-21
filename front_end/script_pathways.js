@@ -1,19 +1,97 @@
-document.getElementById('submit-button').addEventListener('click', submitAction);
+var targetWord = '';
+var stepsTaken = 0;
+var gameIsActive = true;
 
-document.getElementById('word-input').addEventListener('keypress', function(event) {
-    if (event.keyCode === 13 || event.which === 13) {
-        submitAction(); 
-    }
+
+document.getElementById('start-new-game').addEventListener('click', () => {
+    initializeGame();
 });
 
-function submitAction() {
-    var word = document.getElementById('word-input').value.toLowerCase().trim(); 
+function initializeGame() {
+    const wordList = [
+        "happy", "difficult", "prove", "testify", 
+        "secret", "huge", "small", "sad", "investigate",
+        "throw", "adventure", "create", "read", "imaginative"
+    ];
+    const startWord = wordList[Math.floor(Math.random() * wordList.length)];
+    document.getElementById('start-word').textContent = startWord;
+
+    // Fetch the similar words for the start word
+    fetchSimilarWords(startWord, (similarWords) => {
+        // From the similar words, pick a random word to proceed
+        const nextWord = chooseRandomWord(similarWords);
+        console.log(nextWord)
+        // Fetch the similar words for the next word
+        fetchSimilarWords(startWord, (similarWords) => {
+            // From the similar words, pick a random word to proceed
+            const nextnextWord = chooseRandomWord(similarWords);
+            console.log(nextnextWord)
+            // Fetch the similar words for the next word
+            fetchSimilarWords(nextnextWord, (nextSimilarWords) => {
+                // Again, pick a random word from this new list
+                const finalWord = chooseRandomWord(nextSimilarWords);
+                console.log(finalWord)
+                // Fetch the similar words for the final word to choose the target word
+                fetchSimilarWords(finalWord, (finalSimilarWords) => {
+                    // Choose the target word from the final list
+                    targetWord = chooseRandomWord(finalSimilarWords);
+                    console.log("Initialized Target Word:", targetWord);
+                    // Display the target word on the page
+                    document.getElementById('target-word').textContent = targetWord;
+
+                    // Now that we have both start and target words, display the initial graph for the start word
+                    displayGraphForWord(startWord, targetWord);
+                });
+            });
+        });
+    });
+}
+
+function fetchSimilarWords(word, callback) {
     fetch('/get_graph', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ word: word }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!Array.isArray(data.similar_words)) {
+            console.error('Received data is not an array:', data);
+            showPopup('Invalid data format received from server. That word is not in the dictionary.');
+            return;
+        }
+        console.log(data)
+        // Process the data to extract just the words for the callback
+        const words = data.similar_words.map(item => item[0]);
+        callback(words);
+        console.log(words)
+    })
+    .catch(error => {
+        console.error('Error fetching similar words:', error);
+        // Optionally, show this error in the UI as well
+    });
+}
+
+function chooseRandomWord(words) {
+    // Select a random word from the array
+    const index = Math.floor(Math.random() * words.length);
+    return words[index];
+}
+
+function displayGraphForWord(startWord, targetWord, gameIsActive) { //Akin to the submit action
+    fetch('/get_graph', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ word: startWord }),
     })
     .then(response => response.json())
     .then(data => {
@@ -27,9 +105,9 @@ function submitAction() {
             word: d[0],
             similarity: d[1]
         }));
-        currentGraphData.sourceWord = word;
+        currentGraphData.sourceWord = startWord;
 
-        displayGraph(currentGraphData.similarWords, word);
+        displayGraph(currentGraphData.similarWords, startWord, targetWord);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -42,7 +120,7 @@ var currentGraphData = { similarWords: [], sourceWord: '', nodes: [], links: [] 
 let isSimulationLoaded = false;
 
 
-function displayGraph(similarWords, sourceWord) {
+function displayGraph(similarWords, sourceWord, targetWord, gameIsActive) {
     d3.select('#svg-container').selectAll("*").remove();
 
     // Update currentGraphData with the new similar words and source word
@@ -61,8 +139,8 @@ function displayGraph(similarWords, sourceWord) {
     }));
 
     // Set up graph dimensions
-    var width = document.getElementById('graph-container').clientWidth;
-    var height = document.getElementById('graph-container').clientHeight;
+    var width = document.getElementById('svg-container').clientWidth;
+    var height = document.getElementById('svg-container').clientHeight;
 
     var svg = d3.select('#svg-container').append('svg')
                 .attr('width', width) 
@@ -87,7 +165,6 @@ function displayGraph(similarWords, sourceWord) {
                   .enter().append("line")
                   .style("stroke", "#aaa")
                   .style("stroke-width", 3)
-    var clickedNode;
     // Custom color scale - based on link distance
     var colorScale = d3.scaleLinear()
         .domain([d3.min(currentGraphData.links, d => calculateDistance(d.value)), d3.max(currentGraphData.links, d => calculateDistance(d.value))])
@@ -102,6 +179,16 @@ function displayGraph(similarWords, sourceWord) {
         .data(currentGraphData.nodes)
         .enter().append("circle")
         .attr("r", 30)
+       
+        .attr("stroke", d => {
+            if (d.id === currentGraphData.sourceWord) return "black"; // Start word
+            if (d.id === targetWord) return "black"; // Target word after game ends
+            return "none";
+        })
+        .attr("stroke-width", d => {
+            if (d.id === currentGraphData.sourceWord || (d.id === targetWord)) return 2;
+            return 0;
+        })
         .style("fill", function(d) {
             // Calculate the average distance of links for this node
             let links = currentGraphData.links.filter(link => link.source.id === d.id || link.target.id === d.id);
@@ -110,12 +197,14 @@ function displayGraph(similarWords, sourceWord) {
         })
       .each(function(d) {
           var currentWord = d.id;
-          console.log('Node created for word:', currentWord);  
-          d3.select(this).on('click', function() {
-           if (!isSimulationLoaded) {
+        d3.select(this).on('click', async function() {
+            if (!isSimulationLoaded) {
                 showPopup('Simulation is still loading. Please wait.'); 
+                return;
             }
-            fetchAndDisplaySimilarWords(svg, currentGraphData.nodes, currentWord);
+            console.log("Target word at the time a node is clicked, before passing to fetchAndDisplaySimilarWords from displayGraph: ", targetWord);
+            await fetchAndDisplaySimilarWords(svg, currentGraphData.nodes, currentWord, targetWord);
+            console.log("TWord after fetchAndDisplaySimilarWords is called in the display graph", targetWord);
         });
       });
       node.call(drag(simulation, svg));
@@ -129,7 +218,7 @@ function displayGraph(similarWords, sourceWord) {
                    .text(function(d) { return d.id; })
                    .style("text-anchor", "middle")
                    .style("alignment-baseline", "central")
-                   .style("font-size", "12px")
+                   .style("font-size", "11px")
                    .style("font-family", "Times New Roman")
                    .style("fill", "#333");
 
@@ -160,7 +249,13 @@ function displayGraph(similarWords, sourceWord) {
 
 }
 
+
 function fetchAndDisplaySimilarWords(svg, nodes, clickedWord) {
+    // Prevent further actions if the game is over
+    if (!gameIsActive) {
+        showPopup('You have already reached the target word! Click the button to start a new game');
+        return;
+    }
 
     isSimulationLoaded = false;
     document.getElementById('loadingIndicator').style.backgroundColor = 'red';
@@ -172,7 +267,6 @@ function fetchAndDisplaySimilarWords(svg, nodes, clickedWord) {
         },
         body: JSON.stringify({ word: clickedWord }),
     })
-
     .then(response => response.json())
     .then(data => {
         if (!data || !Array.isArray(data.similar_words)) {
@@ -180,6 +274,17 @@ function fetchAndDisplaySimilarWords(svg, nodes, clickedWord) {
             return;
         }
 
+        // Check if the clicked word is the target word
+        if (clickedWord === targetWord) {
+            gameIsActive = false; // Stop the game
+            // Display a message to the user indicating the game is over
+            showPopup('Congratulations! You have reached the target word in ' + stepsTaken + ' steps. Click the button to start a new game.');
+            document.getElementById('loadingIndicator').style.backgroundColor = 'green';
+            return; // Stop execution to prevent further actions
+        }
+
+        stepsTaken++; // Increment steps for each valid click
+        document.getElementById('steps-counter').textContent = stepsTaken.toString();
         // Process new words and update currentGraphData
         data.similar_words.forEach(d => {
             const word = d[0];
@@ -195,14 +300,19 @@ function fetchAndDisplaySimilarWords(svg, nodes, clickedWord) {
     })
     .catch(error => {
         console.error('Error:', error);
+        // Optionally, update UI to reflect the error state
+        showPopup('Failed to fetch similar words. Please try again.');
+        document.getElementById('loadingIndicator').style.backgroundColor = 'red';
     });
 }
+
+
 
 function updateGraph(svg, currentGraphData, clickedWord) {
     // Clear existing SVG elements
     svg.selectAll("*").remove();
 
-    // Initialize nodes
+    // Initialize nodes with position for new nodes, if not already set
     currentGraphData.nodes.forEach(node => {
         if (isNaN(node.x) || isNaN(node.y)) {
             node.x = Math.random() * svg.attr('width');
@@ -210,7 +320,7 @@ function updateGraph(svg, currentGraphData, clickedWord) {
         }
     });
 
-
+    // Update links for d3 force simulation
     currentGraphData.links.forEach(link => {
         if (typeof link.source === "string") {
             link.source = currentGraphData.nodes.find(node => node.id === link.source);
@@ -227,63 +337,60 @@ function updateGraph(svg, currentGraphData, clickedWord) {
         .data(currentGraphData.links)
         .enter().append("line")
         .style("stroke", "#aaa")
-        .style("stroke-width", 3);
+        .style("stroke-width", d => 2);
 
-    var clickedNode;
-    // Custom color scale
+    // Custom color scale for node fill based on link value
     var colorScale = d3.scaleLinear()
-        .domain([d3.min(currentGraphData.links, d => calculateDistance(d.value)), d3.max(currentGraphData.links, d => calculateDistance(d.value))])
+        .domain([d3.min(currentGraphData.links, d => d.value), d3.max(currentGraphData.links, d => d.value)])
         .range(["#89CFF0", "#f5f5dc"]);
 
-    colorScale.domain([d3.min(currentGraphData.links, d => calculateDistance(d.value)), d3.max(currentGraphData.links, d => calculateDistance(d.value))]);
-
-    // Create and style the nodes with dynamic coloring based on distance
+    // Create and style the nodes
     var node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("circle")
         .data(currentGraphData.nodes)
         .enter().append("circle")
         .attr("r", 30)
-        .style("fill", function(d) {
-            // Calculate the average distance of links for this node
-            let links = currentGraphData.links.filter(link => link.source.id === d.id || link.target.id === d.id);
-            let averageDistance = d3.mean(links, link => calculateDistance(link.value));
-            console.log(`color of node ${d.id} = ${colorScale(averageDistance)}` )
-            return colorScale(averageDistance);
+        .attr("stroke", d => {
+            if (d.id === currentGraphData.sourceWord || d.id === targetWord) return "black"; // Outline start and target words
+            return "none";
         })
+        .attr("stroke-width", d => {
+            if (d.id === currentGraphData.sourceWord || d.id === targetWord) return 2;
+            return 0;
+        })
+        .style("fill", d => colorScale(d3.mean(currentGraphData.links.filter(link => link.source.id === d.id || link.target.id === d.id), link => link.value)));
+
         node.each(function(d) {
-            var currentWord = d.id;
-            d3.select(this).on('click', function(event) {
-                if (!isSimulationLoaded) {
-                    console.warn('Simulation is still loading. Please wait.');
-                    return; 
-                }
+        var currentWord = d.id;
+        d3.select(this).on('click', function() {
+            if (!isSimulationLoaded || !gameIsActive) {
+                console.warn('Simulation is still loading or game is over. Please wait.');
+                return;
+            }
 
-                clickedNode = currentWord;
-                setTimeout(function() {
-                    if (clickedNode === currentWord) {
-                        fetchAndDisplaySimilarWords(svg, currentGraphData.nodes, currentWord);
-                    }
-                }, 250); 
-            });
+            fetchAndDisplaySimilarWords(svg, currentGraphData.nodes, currentWord);
         });
-        node.call(drag(simulation, svg));
+    });
 
-    // Create and style labels
+    // Apply drag behavior to nodes
+    node.call(drag(simulation, svg));
+
+    // Create labels for nodes
     var label = svg.append("g")
         .attr("class", "labels")
         .selectAll("text")
         .data(currentGraphData.nodes)
         .enter().append("text")
-        .text(function(d) { return d.id; })
+        .text(d => d.id)
         .style("text-anchor", "middle")
         .style("alignment-baseline", "central")
-        .style("font-size", "12px")
-        .style("font-family", "Times New Roman")
+        .style("font-size", "11px")
+        .style("font-family", "Arial, sans-serif")
         .style("fill", "#333");
 
-
-    console.log("Updating graph with new data", currentGraphData);
+    
+    
     simulation.force("link")
         .links(currentGraphData.links)
         .distance(d => calculateDistance(d.value));
@@ -294,7 +401,7 @@ function updateGraph(svg, currentGraphData, clickedWord) {
     simulation.nodes(currentGraphData.nodes);
     simulation.alpha(1).restart();
 
-
+    // Update positions on each simulation tick
     simulation.on("tick", function() {
         link.attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
@@ -313,8 +420,8 @@ function updateGraph(svg, currentGraphData, clickedWord) {
         var maxY = d3.max(currentGraphData.nodes, d => d.y + 30);
 
         // Update SVG size if needed
-        if (svg.attr('width') < maxX) svg.attr('width', maxX + 30);
-        if (svg.attr('height') < maxY) svg.attr('height', maxY + 30);
+        if (svg.attr('width') < maxX) svg.attr('width', maxX + 50);
+        if (svg.attr('height') < maxY) svg.attr('height', maxY + 50);
         console.log(`svg.attr('width') = ${svg.attr('width')}`);
         }).on("end", function() {
             isSimulationLoaded = true;
@@ -323,6 +430,7 @@ function updateGraph(svg, currentGraphData, clickedWord) {
 
         console.log("Graph update complete");
 }
+
 
 function calculateDistance(similarity){
     // console.log(`similarity = ${similarity}`);
@@ -370,14 +478,6 @@ function drag(simulation, svg) {
             // The node was dragged
             // console.log("Node dragged", event.subject);
         }
-        // console.log("Node data after drag ends", event.subject);
-
-        // Log data for all nodes
-        // simulation.nodes().forEach(node => {
-        //     console.log("Node data", node);
-        // });
-
-        // console.log("Current Graph Data", currentGraphData);
 
         event.sourceEvent.stopPropagation();
         simulation.restart();
