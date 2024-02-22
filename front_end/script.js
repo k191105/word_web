@@ -7,6 +7,9 @@ document.getElementById('word-input').addEventListener('keypress', function(even
 });
 
 function submitAction() {
+    document.getElementById('instructions-container').style.display = 'none';
+    document.getElementById('svg-container').classList.remove('hidden');
+
     var word = document.getElementById('word-input').value.toLowerCase().trim(); 
     fetch('/get_graph', {
         method: 'POST',

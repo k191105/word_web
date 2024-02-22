@@ -62,8 +62,14 @@
         </div>
 
         <div class="mt-4" id="graph-container">
-            <div id="svg-container">
+            <!-- Instructions container -->
+            <div id="instructions-container" class="text-center p-4 flex flex-col items-center justify-center h-full text-center p-4">
+                <h2 class="text-lg font-semibold tracking-wider mb-2">Getting Started</h2>
+                <p><b>Enter a seed word</b> into the search bar to visualise its semantic neighbourhood.</p>
+                <p><b>Click on the nodes</b> in the graph to expand the network with related words.</p>
+                <p><b>Drag</b> to rearrange nodes.</p>
             </div>
+            <div id="svg-container" class="hidden" ></div>
         </div>
 
         <div id="about-section" class="mt-4">
