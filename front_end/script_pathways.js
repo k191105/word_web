@@ -8,8 +8,11 @@ document.getElementById('start-new-game').addEventListener('click', () => {
 });
 
 function initializeGame() {
+    stepsTaken = 0;
+    gameIsActive = true;
+    document.getElementById('steps-counter').textContent = stepsTaken.toString();
     const wordList = [
-        "happy", "difficult", "prove", "testify", 
+        "happy", "difficult", "prove", "examine", 
         "secret", "huge", "small", "sad", "investigate",
         "throw", "adventure", "create", "read", "imaginative"
     ];
@@ -38,7 +41,6 @@ function initializeGame() {
                     console.log("Initialized Target Word:", targetWord);
                     // Display the target word on the page
                     document.getElementById('target-word').textContent = targetWord;
-
                     // Now that we have both start and target words, display the initial graph for the start word
                     displayGraphForWord(startWord, targetWord);
                 });
@@ -121,6 +123,7 @@ let isSimulationLoaded = false;
 
 
 function displayGraph(similarWords, sourceWord, targetWord, gameIsActive) {
+    
     d3.select('#svg-container').selectAll("*").remove();
 
     // Update currentGraphData with the new similar words and source word
