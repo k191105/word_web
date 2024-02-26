@@ -2,6 +2,7 @@
 trim.py
 preprocessing.py
 training.py
-
+oxford_original.model
+oxford_updated.model
 venv/
 data/

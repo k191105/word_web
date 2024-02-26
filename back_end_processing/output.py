@@ -84,4 +84,4 @@ def find_weighted_similar_words(target_word, models, topn=12):
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('showcases', models)
+    similar_words = find_weighted_similar_words('listen', models)
