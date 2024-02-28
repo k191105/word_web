@@ -13,7 +13,7 @@ def get_wordnet_pos(word):
 # Function to load models
 def load_models():
     # Construct the path to the model files
-    model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_reduced.model')
+    model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
     model_oxford_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec_model_oxford.model')
     
 
@@ -116,4 +116,4 @@ def find_weighted_similar_words(target_word, models, topn=12):
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('clown', models)
+    similar_words = find_weighted_similar_words('kangaroo', models)
