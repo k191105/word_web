@@ -13,7 +13,7 @@ def get_wordnet_pos(word):
 # Function to load models
 def load_models():
     # Construct the path to the model files
-    model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
+    model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_reduced.model')
     model_oxford_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec_model_oxford.model')
     
 
@@ -28,14 +28,47 @@ def load_models():
         print("Failed to load models:", e)
         raise
 
+def normalize_scores(results, min_val, max_val):
+    if not results:  # Check if the results list is empty
+        return []
+
+    # Extract just the similarity scores from the results
+    scores = [similarity for _, similarity in results]
+
+    # Find the current min and max scores
+    min_score, max_score = min(scores), max(scores)
+
+    # Normalize scores to fall between min_val and max_val
+    normalized_results = []
+    for word, similarity in results:
+        # Avoid division by zero if all scores are the same
+        if min_score == max_score:
+            normalized_score = min_val
+        else:
+            # Normalize the score
+            normalized_score = min_val + ((similarity - min_score) / (max_score - min_score)) * (max_val - min_val)
+        normalized_results.append((word, normalized_score))
+
+    return normalized_results
+
+
 def find_weighted_similar_words(target_word, models, topn=12):
     pos = get_wordnet_pos(target_word)
     print(f"Finding similar words for '{target_word}' with POS: {pos}")
+    print(pos)
+    # Determine if the target word is a proper noun
+    is_proper_noun = pos == 'PROPN'
 
     # Generate similar words from both models
     oxford_results = models['oxford'].most_similar(target_word, topn=topn) if target_word in models['oxford'].key_to_index else []
     google_news_results = models['google_news'].most_similar(target_word, topn=topn) if target_word in models['google_news'].key_to_index else []
-    # print(f"oxford_results: {oxford_results}")
+    
+
+
+    if is_proper_noun:
+        google_news_results = normalize_scores(google_news_results, 0.85, 1.0)
+        oxford_results = normalize_scores(oxford_results, 0.7, 0.85)
+
     # print(f"google reults: {google_news_results}")
     # Combine results based on POS
     if pos in ["ADJ", "VERB", "ADV"]:
@@ -61,12 +94,11 @@ def find_weighted_similar_words(target_word, models, topn=12):
                     adjusted_long_list[i] = (adj_word, adj_similarity * 1.16)
                     break
 
-    print(adjusted_long_list)
+    # print(adjusted_long_list)
     medium_list = [word for word in adjusted_long_list if word[1] >= 0.54]
     
     # Cut to short_list and sort
     short_list = sorted(medium_list[:10], key=lambda x: x[1], reverse=True)
-
 
     min_score, max_score = short_list[-1][1], short_list[0][1]
     range_min, range_max = 0.8, 1.0
@@ -84,4 +116,4 @@ def find_weighted_similar_words(target_word, models, topn=12):
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('listen', models)
+    similar_words = find_weighted_similar_words('clown', models)

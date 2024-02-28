@@ -4,5 +4,9 @@ preprocessing.py
 training.py
 oxford_original.model
 oxford_updated.model
+word2vec-google-news-300_reduced.model
+word2vec-google-news-300_reduced.model.vectors.npy
+model_evaluation.txt
+testing.py
 venv/
 data/
