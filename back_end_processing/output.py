@@ -2,6 +2,7 @@ from gensim.models import KeyedVectors
 import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
+from textblob import TextBlob
 
 def get_wordnet_pos(word):
     doc = nlp(word)
@@ -109,11 +110,20 @@ def find_weighted_similar_words(target_word, models, topn=12):
 
     sorted_adjusted_results = [(word, adjust_score(similarity)) for word, similarity in short_list]
 
+    # Calculate polarity scores for each word in the short list
+    final_results = []
     for word, similarity in sorted_adjusted_results:
-        print(f'{word}: {similarity}')
-    return sorted_adjusted_results
+        polarity = TextBlob(word).sentiment.polarity  # Compute the polarity score using TextBlob
+        final_results.append((word, similarity, polarity))  # Append the word with both similarity and polarity scores
+
+    # Print final results for verification
+    for word, similarity, polarity in final_results:
+        print(f'{word}: Similarity={similarity}, Polarity={polarity}')
+
+    return final_results
+
 
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('kangaroo', models)
+    similar_words = find_weighted_similar_words('thrilled', models)

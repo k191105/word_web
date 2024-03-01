@@ -8,5 +8,6 @@ word2vec-google-news-300_reduced.model
 word2vec-google-news-300_reduced.model.vectors.npy
 model_evaluation.txt
 testing.py
+sentiment.py
 venv/
 data/
