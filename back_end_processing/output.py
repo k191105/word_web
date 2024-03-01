@@ -110,17 +110,12 @@ def find_weighted_similar_words(target_word, models, topn=12):
 
     sorted_adjusted_results = [(word, adjust_score(similarity)) for word, similarity in short_list]
 
-    # Calculate polarity scores for each word in the short list
-    final_results = []
-    for word, similarity in sorted_adjusted_results:
-        polarity = TextBlob(word).sentiment.polarity  # Compute the polarity score using TextBlob
-        final_results.append((word, similarity, polarity))  # Append the word with both similarity and polarity scores
 
     # Print final results for verification
-    for word, similarity, polarity in final_results:
-        print(f'{word}: Similarity={similarity}, Polarity={polarity}')
+    for word, similarity in sorted_adjusted_results:
+        print(f'{word}: Similarity={similarity}')
 
-    return final_results
+    return sorted_adjusted_results
 
 
 # Example usage
