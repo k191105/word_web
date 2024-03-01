@@ -2,7 +2,6 @@ from gensim.models import KeyedVectors
 import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
-from textblob import TextBlob
 
 def get_wordnet_pos(word):
     doc = nlp(word)
