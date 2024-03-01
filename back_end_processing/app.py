@@ -11,6 +11,7 @@ def load_models_async():
     global models
     models = load_models()
     print("Models loaded successfully.")
+    
 
 # Load the models asynchronously when the server starts
 threading.Thread(target=load_models_async).start()
