@@ -3,12 +3,27 @@ import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
-def get_wordnet_pos(word):
+def get_word_attributes(word):
     doc = nlp(word)
-    spacy_pos_tag = doc[0].pos_  
-    print(f"spaCy POS tag for '{word}': {spacy_pos_tag}")
-    return spacy_pos_tag
+    spacy_pos_tag = doc[0].pos_
+    lemma = doc[0].lemma_
+    print(f"spaCy POS tag for '{word}': {spacy_pos_tag}, Lemma: {lemma}")
+    return spacy_pos_tag, lemma
 
+def filter_morphologically_similar_words(long_list, target_word):
+    filtered_list = []
+    _, target_lemma = get_word_attributes(target_word)  # Get POS and lemma of the target word
+    is_target_in_lemma_form = target_word == target_lemma  # Check if the target word is in its lemma form
+    seen_lemmas = {target_lemma}
+    
+    for word, similarity in long_list:
+        _, word_lemma = get_word_attributes(word)  # Get lemma for each word
+        if word_lemma not in seen_lemmas:
+            # Add word or its lemma to the list depending on whether the target is in its lemma form
+            filtered_word = word_lemma if is_target_in_lemma_form else word
+            filtered_list.append((filtered_word, similarity))
+            seen_lemmas.add(word_lemma)
+    return filtered_list
 
 # Function to load models
 def load_models():
@@ -52,8 +67,8 @@ def normalize_scores(results, min_val, max_val):
     return normalized_results
 
 
-def find_weighted_similar_words(target_word, models, topn=12):
-    pos = get_wordnet_pos(target_word)
+def find_weighted_similar_words(target_word, models, topn=16):
+    pos, _ = get_word_attributes(target_word)
     print(f"Finding similar words for '{target_word}' with POS: {pos}")
     print(pos)
     # Determine if the target word is a proper noun
@@ -77,6 +92,8 @@ def find_weighted_similar_words(target_word, models, topn=12):
     else:  # For nouns
         long_list = google_news_results + oxford_results
         print("Using Google")
+    
+    long_list = filter_morphologically_similar_words(long_list, target_word)
 
     # print("Initial long_list created with combined results.")
     # print(long_list)
@@ -120,4 +137,4 @@ def find_weighted_similar_words(target_word, models, topn=12):
 # Example usage
 if __name__ == "__main__":
     models = load_models()
-    similar_words = find_weighted_similar_words('thrilled', models)
+    similar_words = find_weighted_similar_words('depict', models)
