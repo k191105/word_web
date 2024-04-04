@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from .output import find_weighted_similar_words, load_models ## Change to .output for deployment, output for local
 import os
 import threading
-from triangulate import triangulate_words_enhanced, load_model
+from .triangulate import triangulate_words_enhanced, load_model
 
 
 app = Flask(__name__, static_folder='../front_end')
