@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, send_from_directory
 from .output import find_weighted_similar_words, load_models ## Change to .output for deployment, output for local
 import os
 import threading
+from triangulate import triangulate_words_enhanced, load_model
+
 
 app = Flask(__name__, static_folder='../front_end')
 
@@ -23,6 +25,31 @@ def index():
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory(app.static_folder, path)
+@app.route('/triangulate', methods=['POST'])
+def triangulate():
+    data = request.json
+    words = data.get('words', [])
+
+    if not words:  # If no words are provided in the request
+        return jsonify({"error": "No words provided"}), 400
+
+    # Assuming equal weights for simplicity since no specific weights are provided
+    weights = [1.0 / len(words)] * len(words)  
+
+    # Load your Word2Vec model (consider moving this to app initialization if it's heavy)
+    model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
+    model = load_model(model_google_news_path)
+    
+    if not model:
+        return jsonify({"error": "Failed to load the model"}), 500
+
+    try:
+        similar_words = triangulate_words_enhanced(model, words, weights, topn=20)
+        return jsonify(similar_words)
+    except Exception as e:
+        # Handle errors more gracefully in production code
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/get_graph', methods=['POST'])
 def get_graph():

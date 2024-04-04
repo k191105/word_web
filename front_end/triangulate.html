@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Word Triangulation Tool</title>
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Raleway" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white border-gray-200 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto p-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <!-- Replace the following line with your custom logo image -->
+                <img src="logo.png" alt="Word Wide Web Logo" class="h-10 w-10 rounded-full"> <!-- Adjust the h-8 w-8 values based on your logo's dimensions -->
+                <span class="self-center text-2xl font-semibold whitespace-nowrap text-black-600">Word Wide Web</span>
+                </a>
+            </a>
+            <button data-collapse-toggle="navbar-dropdown" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-dropdown" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div class="hidden w-full md:block md:w-auto" id="navbar-dropdown">
+                <ul class="flex flex-col p-4 mt-4 bg-white rounded-lg border border-gray-200 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-transparent">
+                    <li>
+                        <a href="index.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-blue-50 md:hover:bg-transparent md:hover:text-indigo-600 md:p-0">Home</a>
+                    </li>
+                    <li>
+                        <a href="triangulate.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-blue-50 md:hover:bg-transparent md:hover:text-indigo-600 md:p-0">Triangulate (Beta)</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 flex mt-4">
+        <div class="mr-4 md:w-3/4">
+            <div id="svg-container" style="border: 1px solid #ccc; min-height: 400px; padding: 20px;">
+                <h2 class="text-lg font-semibold mb-3">Triangulation Results</h2>
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+        <div class="flex-initial" style="flex: 1; padding-left: 20px;" id="game-instructions">
+            <div class="info-box" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                <h3 class="text-lg font-semibold mb-3">Enter Words for Triangulation</h3>
+                <div class="input-fields" id="input-fields">
+                    <!-- Initially three input fields for the words -->
+                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word1" placeholder="Word 1" class="input-field mb-2">
+                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word2" placeholder="Word 2" class="input-field mb-2">
+                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word3" placeholder="Word 3" class="input-field mb-2">
+                </div>
+                <button id="add-field" class="w-full t-2 mb-4 bg-transparent border border-gray-300 rounded-lg py-2 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2">+ Add Word</button>
+                <br> <!-- Ensure separation between buttons -->
+
+                <button id="start-new-game" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mt-2">Triangulate</button>
+            </div>
+        </div>
+    </div>
+    <div id="loadingIndicator" class="hidden">Loading...</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let wordCount = 3; // Starting with 3 inputs
+            const addFieldButton = document.getElementById("add-field");
+            const inputFieldsDiv = document.getElementById("input-fields");
+
+            addFieldButton.addEventListener("click", function() {
+                if (wordCount < 11) {
+                    wordCount++;
+                    const newInput = document.createElement("input");
+                    newInput.type = "text";
+                    newInput.id = `word${wordCount}`;
+                    newInput.placeholder = `Word ${wordCount}`;
+                    newInput.className = "w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2";
+                    inputFieldsDiv.appendChild(newInput);
+                } else {
+                    addFieldButton.disabled = true; // Disable button if 8 fields are reached
+                }
+            });
+        });
+    </script>
+    <script src="triangulate.js"></script>
+
+</body>
+</html>
