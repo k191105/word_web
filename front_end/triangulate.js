@@ -52,15 +52,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
-function displayResults(words, weights) {
 
-
+function displayResults(data) {
+    console.log(data)
     const resultsContainer = document.getElementById("svg-container");
     
     resultsContainer.innerHTML = ""; // Clear previous results
     // Column Titles
     const titleContainer = document.createElement("div");
-    titleContainer.className = "flex justify-between items-center bg-grey-100 border-b py-4 px-4";
+    titleContainer.className = "flex justify-between items-center border-b border-grey-400 py-4 px-4";
 
     const wordTitle = document.createElement("span");
     wordTitle.textContent = "Word";
@@ -68,12 +68,14 @@ function displayResults(words, weights) {
     titleContainer.appendChild(wordTitle);
 
     const actionTitle = document.createElement("span");
-    actionTitle.textContent = "Getting close? Rerun triangulation factoring in this word too.";
-    actionTitle.className = "font-bold";
+    actionTitle.textContent = "Getting close? Click to further steer triangulation.";
+    actionTitle.className = "font-bold mr-6";
     titleContainer.appendChild(actionTitle);
 
     resultsContainer.appendChild(titleContainer);
-    words.forEach(word => {
+
+
+    data.forEach(word => {
         const item = document.createElement("div");
         item.className = "flex justify-between items-center border-b py-2 px-4";
 
@@ -82,18 +84,24 @@ function displayResults(words, weights) {
         item.appendChild(wordText);
 
         const feedbackContainer = document.createElement("div");
+        feedbackContainer.className = "ml-2 px-4 py-1 bg-cyan-100 text-black font-bold py-2 px-4 rounded";
 
+
+        // const bt = document.createElement("text");
+        // bt.textContent = "Rerun Calculations: ";
+        // bt.className = "font-bold";
+        // feedbackContainer.appendChild(bt);
         // "This is close" Button
         const closeBtn = document.createElement("button");
-        closeBtn.textContent = "This word is close";
-        closeBtn.className = "ml-2 px-4 py-1 bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded mt-2";
+        closeBtn.textContent = "This is somewhat close - refine results";
+        closeBtn.className = "ml-6 px-4 py-1 bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded";
         closeBtn.onclick = () => handleFeedback(word, 120);
         feedbackContainer.appendChild(closeBtn);
 
         // "This is very close" Button
         const veryCloseBtn = document.createElement("button");
-        veryCloseBtn.textContent = "This word is very close";
-        veryCloseBtn.className = "ml-2 px-4 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mt-2";
+        veryCloseBtn.textContent = "This is very close - focus triangulation";
+        veryCloseBtn.className = "ml-2 px-4 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded";
         veryCloseBtn.onclick = () => handleFeedback(word, 240);
         feedbackContainer.appendChild(veryCloseBtn);
 
@@ -123,8 +131,7 @@ async function handleFeedback(selectedWord, weight) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            // It's crucial here to ensure `words` and `weights` are up-to-date
-            body: JSON.stringify({ words, weights }), // Send both words and weights
+            body: JSON.stringify({ words, weights }), 
         });
 
         if (!response.ok) {
