@@ -31,8 +31,11 @@ def triangulate_words_enhanced(model, words, weights, topn=20):
     centroid = centroid / np.linalg.norm(centroid)
     
     closest_words = model.similar_by_vector(centroid, topn=topn)
-    return [word for word, similarity in closest_words]
+    # Filter out the initial words from the results
+    filtered_words = [word for word, similarity in closest_words if word not in words]
 
+    # Return only up to `topn` results to maintain the expected list size
+    return filtered_words[:topn]
 
 if __name__ == "__main__":
     model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')

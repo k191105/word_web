@@ -7,6 +7,12 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- Include jQuery Knob -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+
 </head>
 <body class="bg-gray-100">
     <nav class="bg-white border-gray-200 shadow-lg sticky top-0 z-50">
@@ -27,7 +33,7 @@
                         <a href="index.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-blue-50 md:hover:bg-transparent md:hover:text-indigo-600 md:p-0">Home</a>
                     </li>
                     <li>
-                        <a href="triangulate.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-blue-50 md:hover:bg-transparent md:hover:text-indigo-600 md:p-0">Triangulate (Beta)</a>
+                        <a href="triangulate.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-blue-50 md:hover:bg-transparent md:hover:text-indigo-600 md:p-0">Using this tool</a>
                     </li>
 
                 </ul>
@@ -38,18 +44,35 @@
     <div class="container mx-auto p-4 flex mt-4">
         <div class="mr-4 md:w-3/4">
             <div id="svg-container" style="border: 1px solid #ccc; min-height: 400px; padding: 20px;">
-                <h2 class="text-lg font-semibold mb-3">Triangulation Results</h2>
+                <div id="instructions-container" class="text-center p-4 flex flex-col items-center justify-center h-full text-center p-4 line-height: 1.7">
+                    <h2 class="text-lg font-semibold tracking-wider mb-2">Welcome to the Triangulator tool!</h2>
+                    <p><b>Enter words</b> into the provided input fields to start <a href="https://en.wikipedia.org/wiki/Triangulation" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">triangulating</a> the word you're looking for.</p>
+                    <p><b>Adjust the weight</b> for each word: some words might be more or less important in your triangulation.</p>
+                    <p><b>Add more words</b> by clicking the "+ Add Word" button. You can add up to 12 words.</p>
+                </div>
                 <!-- Results will be displayed here -->
             </div>
         </div>
         <div class="flex-initial" style="flex: 1; padding-left: 20px;" id="game-instructions">
             <div class="info-box" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
                 <h3 class="text-lg font-semibold mb-3">Enter Words for Triangulation</h3>
+                <div class="flex mb-2">
+                    <div class="w-1/2 mr-8 ml-1 font-bold">Word</div>
+                    <div class="w-1/5 ml-7 font-bold">Weight</div>
+                </div>
                 <div class="input-fields" id="input-fields">
-                    <!-- Initially three input fields for the words -->
-                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word1" placeholder="Word 1" class="input-field mb-2">
-                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word2" placeholder="Word 2" class="input-field mb-2">
-                    <input type="text" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2" id="word3" placeholder="Word 3" class="input-field mb-2">
+                    <div class="flex items-center mb-4">
+                        <input type="text" id="word1" placeholder="Word 1" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
+                        <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word1-weight" min="1" max="100" value="50" class="range-slider">
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input type="text" id="word2" placeholder="Word 2" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
+                        <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word2-weight" min="1" max="100" value="50" class="range-slider">
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input type="text" id="word3" placeholder="Word 3" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
+                        <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word3-weight" min="1" max="100" value="50" class="range-slider">
+                    </div>
                 </div>
                 <button id="add-field" class="w-full t-2 mb-4 bg-transparent border border-gray-300 rounded-lg py-2 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2">+ Add Word</button>
                 <br> <!-- Ensure separation between buttons -->
@@ -65,22 +88,36 @@
             let wordCount = 3; // Starting with 3 inputs
             const addFieldButton = document.getElementById("add-field");
             const inputFieldsDiv = document.getElementById("input-fields");
-
+        
             addFieldButton.addEventListener("click", function() {
-                if (wordCount < 11) {
+                if (wordCount < 12) { // Allow up to 12 words
                     wordCount++;
-                    const newInput = document.createElement("input");
-                    newInput.type = "text";
-                    newInput.id = `word${wordCount}`;
-                    newInput.placeholder = `Word ${wordCount}`;
-                    newInput.className = "w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2";
-                    inputFieldsDiv.appendChild(newInput);
+                    const fieldContainer = document.createElement("div");
+                    fieldContainer.className = "flex items-center mb-4";
+        
+                    const newWordInput = document.createElement("input");
+                    newWordInput.type = "text";
+                    newWordInput.id = `word${wordCount}`;
+                    newWordInput.placeholder = `Word ${wordCount}`;
+                    newWordInput.className = "w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2";
+                    
+                    const newWeightSlider = document.createElement("input");
+                    newWeightSlider.type = "range";
+                    newWeightSlider.id = `word${wordCount}-weight`;
+                    newWeightSlider.min = "1";
+                    newWeightSlider.max = "100";
+                    newWeightSlider.value = "50";
+                    newWeightSlider.className = "w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400";
+        
+                    fieldContainer.appendChild(newWordInput);
+                    fieldContainer.appendChild(newWeightSlider);
+                    inputFieldsDiv.appendChild(fieldContainer);
                 } else {
-                    addFieldButton.disabled = true; // Disable button if 8 fields are reached
+                    addFieldButton.disabled = true; 
                 }
             });
         });
-    </script>
+        </script>
     <script src="triangulate.js"></script>
 
 </body>

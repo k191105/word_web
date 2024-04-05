@@ -25,18 +25,19 @@ def index():
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory(app.static_folder, path)
+
+
 @app.route('/triangulate', methods=['POST'])
 def triangulate():
     data = request.json
     words = data.get('words', [])
+    weights = data.get('weights', [])
 
-    if not words:  # If no words are provided in the request
-        return jsonify({"error": "No words provided"}), 400
+    # Validate input
+    if not words or not weights or len(words) != len(weights):
+        return jsonify({"error": "Invalid input: words and weights must be provided and match in length"}), 400
 
-    # Assuming equal weights for simplicity since no specific weights are provided
-    weights = [1.0 / len(words)] * len(words)  
-
-    # Load your Word2Vec model (consider moving this to app initialization if it's heavy)
+    # Load your Word2Vec model (consider doing this once at app initialization if it's resource-intensive)
     model_google_news_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'word2vec-google-news-300_trimmed.model')
     model = load_model(model_google_news_path)
     
@@ -44,12 +45,16 @@ def triangulate():
         return jsonify({"error": "Failed to load the model"}), 500
 
     try:
+        # Ensure weights are floats, as they might be sent as strings
+        weights = [float(weight) for weight in weights]
         similar_words = triangulate_words_enhanced(model, words, weights, topn=20)
         return jsonify(similar_words)
     except Exception as e:
         # Handle errors more gracefully in production code
         return jsonify({"error": str(e)}), 500
 
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route('/get_graph', methods=['POST'])
 def get_graph():

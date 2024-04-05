@@ -1,27 +1,35 @@
 document.addEventListener("DOMContentLoaded", function() {
     const startButton = document.getElementById("start-new-game");
     startButton.addEventListener("click", async () => {
-        // Collect non-empty word inputs
+        // Initialize arrays to collect words and their weights
         const words = [];
-        for (let i = 1; i <= 8; i++) {
+        const weights = [];
+
+        // Adjust the limit to 12 to match the updated dynamic fields
+        for (let i = 1; i <= 12; i++) {
             const wordInput = document.getElementById(`word${i}`);
+            const weightInput = document.getElementById(`word${i}-weight`);
+            
+            // Collect words and weights only if the word input is not empty
             if (wordInput && wordInput.value.trim() !== "") {
                 words.push(wordInput.value.trim());
+                // Default to a weight of 5 if for some reason the weight input is missing or invalid
+                weights.push(weightInput ? parseInt(weightInput.value, 10) : 5);
             }
         }
 
-        // Show loading indicator (assuming you have one)
+        // Show loading indicator
         const loadingIndicator = document.getElementById("loadingIndicator");
         if (loadingIndicator) loadingIndicator.style.display = 'block';
 
-        // Send non-empty words to the Flask backend
+        // Send words and their weights to the Flask backend
         try {
             const response = await fetch('/triangulate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ words }),
+                body: JSON.stringify({ words, weights }), // Send both words and weights
             });
 
             if (!response.ok) {
@@ -44,7 +52,6 @@ function displayResults(words) {
     resultsContainer.innerHTML = ""; // Clear previous results
     const list = document.createElement("ul");
 
-    // Ensure 'words' is treated as an array
     if (Array.isArray(words)) {
         words.forEach(word => {
             const item = document.createElement("li");
@@ -53,7 +60,6 @@ function displayResults(words) {
         });
     } else {
         console.error("Expected an array of words, but did not receive one.");
-        console.log(data);
     }
     resultsContainer.appendChild(list);
 }
