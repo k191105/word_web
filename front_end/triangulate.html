@@ -48,7 +48,7 @@
                     <h2 class="text-lg font-semibold tracking-wider mb-2">Welcome to the Triangulator tool!</h2>
                     <p><b>Enter words</b> into the provided input fields to start <a href="https://en.wikipedia.org/wiki/Triangulation" class="text-blue-600 hover:text-blue-800 transition duration-300 ease-in-out">triangulating</a> the word you're looking for.</p>
                     <p><b>Adjust the weight</b> for each word: some words might be more or less important in your triangulation.</p>
-                    <p><b>Add more words</b> by clicking the "+ Add Word" button. You can add up to 12 words.</p>
+                    <p><b>Add more words</b> by clicking the "+ Add Word" button. You can add up to 5 words.</p>
                 </div>
                 <!-- Results will be displayed here -->
             </div>
@@ -61,23 +61,28 @@
                     <div class="w-1/5 ml-7 font-bold">Weight</div>
                 </div>
                 <div class="input-fields" id="input-fields">
-                    <div class="flex items-center mb-4">
+                    <div class="flex items-center mb-2">
                         <input type="text" id="word1" placeholder="Word 1" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
                         <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word1-weight" min="1" max="100" value="50" class="range-slider">
                     </div>
-                    <div class="flex items-center mb-4">
+                    <div class="flex items-center mb-2">
                         <input type="text" id="word2" placeholder="Word 2" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
                         <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word2-weight" min="1" max="100" value="50" class="range-slider">
                     </div>
-                    <div class="flex items-center mb-4">
+                    <div class="flex items-center mb-2">
                         <input type="text" id="word3" placeholder="Word 3" class="w-full bg-white border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mr-2">
                         <input type="range" class ="w-2/5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-400" id="word3-weight" min="1" max="100" value="50" class="range-slider">
                     </div>
                 </div>
-                <button id="add-field" class="w-full t-2 mb-4 bg-transparent border border-gray-300 rounded-lg py-2 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2">+ Add Word</button>
+                <button id="add-field" class="w-full t-2 mb-4 bg-transparent border border-gray-300 rounded-lg py-1 px-2 focus:outline-none focus:ring focus:ring-indigo-400 mb-2">+ Add Word</button>
                 <br> <!-- Ensure separation between buttons -->
 
-                <button id="start-new-game" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mt-2">Triangulate</button>
+                <button id="start-new-game" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mb-2">Triangulate</button>
+                <h3 class="text-lg font-semibold mb-1">About</h3>
+                <p>If you can think of a few words that are kind of like the word you’re looking for, this tool might be helpful. It calculates the relative position of each word provided and ‘triangulates’, or zeroes-in, on the space that blends the connotations of your input words, finding target words that inhabit that approximate region.</p>
+                <br>
+                <p>As with most other tools, the more precise your input is, the better the output will be.</p>
+
             </div>
         </div>
     </div>
@@ -90,10 +95,10 @@
             const inputFieldsDiv = document.getElementById("input-fields");
         
             addFieldButton.addEventListener("click", function() {
-                if (wordCount < 12) { // Allow up to 12 words
+                if (wordCount < 5) { // Allow up to 5 words
                     wordCount++;
                     const fieldContainer = document.createElement("div");
-                    fieldContainer.className = "flex items-center mb-4";
+                    fieldContainer.className = "flex items-center mb-2";
         
                     const newWordInput = document.createElement("input");
                     newWordInput.type = "text";
@@ -112,8 +117,9 @@
                     fieldContainer.appendChild(newWordInput);
                     fieldContainer.appendChild(newWeightSlider);
                     inputFieldsDiv.appendChild(fieldContainer);
-                } else {
-                    addFieldButton.disabled = true; 
+                }         
+                if (wordCount == 5) {
+                    addFieldButton.disabled = true;
                 }
             });
         });

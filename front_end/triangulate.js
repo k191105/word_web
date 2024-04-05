@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
         weights = [];
 
         // Adjust the limit to 12 to match the updated dynamic fields
-        for (let i = 1; i <= 12; i++) {
+        for (let i = 1; i <= 5; i++) {
             const wordInput = document.getElementById(`word${i}`);
             const weightInput = document.getElementById(`word${i}-weight`);
             
