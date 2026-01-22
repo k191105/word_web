@@ -1,0 +1,1 @@
+Old project - now defunct. Implemented a live consumer facing app, previously at wordweb.app that visualised language as a large graph, and treated word lookup as graph traversal. Produced novel embeddings from literary corpora and dynamic graph-like UI. Maintenance ended up being too expensive and site was taken down, but code still runs and the site is functional and complete.
